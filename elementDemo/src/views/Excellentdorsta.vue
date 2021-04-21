@@ -1,7 +1,7 @@
 <template>
   <div id="Bclass">
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="卫生检查日期">
+      <el-form-item label="日期">
         <el-date-picker v-model="formInline.user" type="date" size="small" placeholder="选择日期"></el-date-picker>
       </el-form-item>
 
@@ -9,50 +9,23 @@
         <el-button type="primary" size="small " @click="onSubmit" icon="el-icon-search">搜 索</el-button>
       </el-form-item>
     </el-form>
-    <el-row>
-      <el-col>
 
-        <el-button type="danger" icon="el-icon-delete" disabled size="mini">删除</el-button>
-      </el-col>
-    </el-row>
    
     <el-row>
       <el-col class="Oinn" :span="24">
         <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%">
-          <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column label="序号" width="120">
-            <template slot-scope="scope">{{ scope.row.id }}</template>
+        <el-table-column label="日期" >
+            <template slot-scope="scope">{{ scope.row.inMonth }}</template>
           </el-table-column>
-          <el-table-column prop="checkDate" label="卫生检查日期" width="120"></el-table-column>
-          <el-table-column label="宿舍栋号" width="120">
-              <template slot-scope="scope">{{scope.row.buildingNo}}栋</template>
+      <el-table-column label="宿舍栋号" >
+              <template slot-scope="scope">{{scope.row.buildingNo}}</template>
           </el-table-column>
           <el-table-column  label="楼层">
-                   <template slot-scope="scope">{{scope.row.storey}}楼</template>
+                   <template slot-scope="scope">{{scope.row.storey}}</template>
           </el-table-column>
           <el-table-column prop="dormitoryNo" label="宿舍号"></el-table-column>
-            <el-table-column prop="deductIds" label="卫生扣分项"></el-table-column>
-          <el-table-column prop="totalPdeduct" label="总扣分"></el-table-column>
-            <el-table-column prop="totalScore" label="总得分"></el-table-column>
-          <el-table-column prop="modifyTime" label="创建时间"></el-table-column>
-          <el-table-column label="操作">
-            <template slot-scope="scope">
-              <el-button
-                type="success"
-                size="mini"
-                icon="el-icon-edit"
-                @click="Xiu(scope.row.id)"
-                circle
-              ></el-button>
-              <el-button
-                type="danger"
-                size="mini"
-                icon="el-icon-delete"
-                @click="del(scope.$index,scope.row.id)"
-                circle
-              ></el-button>
-            </template>
-          </el-table-column>
+                 <el-table-column prop="avgScore" label="宿舍卫生平均分得分"></el-table-column>
+          <el-table-column prop="avgNormalAttenceRate" label="宿舍正常平均出勤率"></el-table-column>
         </el-table>
       </el-col>
     </el-row>
@@ -128,6 +101,7 @@
         :total="total"
       ></el-pagination>
     </div>
+    <img src="../assets/12.png" alt="">
   </div>
 </template>
 <script>
@@ -191,7 +165,7 @@ moment
     this.axios({
       method: "get",
       url:
-        "http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/list?pageNum=1&pageSize=10",
+        "http://122.112.253.28:8095/prod-api/report/excellentdorsta/list?pageNum=1&pageSize=10",
       headers: {
         Authorization: window.sessionStorage.token
       }
@@ -219,30 +193,8 @@ moment
     }).then(relt => {
       this.dq2 = relt.data.data;
     });
-        this.axios({
-      method: "get",
-      url: "http://122.112.253.28:8095/prod-api/sysset/hygienededuct/listAll",
-      headers: {
-        Authorization: window.sessionStorage.token
-      }
-    }).then(relt => {
-      this.dq3 = relt.data.data;
-    });
-    // this.axios({
-    //   method: "get",
-    //   url:
-    //     "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10&className=&status=&classTeacherName=",
-    //   headers: {
-    //     Authorization: window.sessionStorage.token
-    //   }
-    // }).then(relt => {
-    //   this.tableData = relt.data.data.list;
-    //   if (relt.data.data.list.status == 0) {
-    //     this.value1 = false;
-    //   } else {
-    //     this.value1 = true;
-    //   }
-    // });
+       
+ 
   },
   methods: {
     handleSizeChange(val) {
@@ -250,7 +202,7 @@ moment
       // var that = this;
       this.axios({
         method: "get",
-        url: `http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/list?pageNum=1&pageSize=${val}`,
+        url: `http://122.112.253.28:8095/prod-api/report/excellentdorsta/list?pageNum=1&pageSize=${val}`,
         headers: {
           Authorization: window.sessionStorage.token
         }
@@ -263,7 +215,7 @@ moment
       // this.pageIndex = val;
       this.axios({
         method: "get",
-        url: `http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/list?pageNum=${val}&pageSize=10`,
+        url: `http://122.112.253.28:8095/prod-api/report/excellentdorsta/list?pageNum=${val}&pageSize=10`,
         headers: {
           Authorization: window.sessionStorage.token
         }
@@ -280,7 +232,7 @@ moment
       this.axios({
         method: "get",
         url:
-          "http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/list?pageNum=1&pageSize=10&checkDate=" +
+          "http://122.112.253.28:8095/prod-api/report/excellentdorsta/list?pageNum=1&pageSize=10&inMonth=" +
           this.formInline.user,
         headers: {
           Authorization: window.sessionStorage.token
@@ -296,7 +248,7 @@ moment
       this.axios({
         method: "DELETE",
         url:
-          "http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/deleteByIds/" +
+          "http://122.112.253.28:8095/prod-api/report/excellentdorsta/deleteByIds/" +
           id,
         headers: {
           Authorization: window.sessionStorage.token
@@ -317,7 +269,7 @@ moment
               this.axios({
                 method: "get",
                 url:
-                  "http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/list?pageNum=1&pageSize=10",
+                  "http://122.112.253.28:8095/prod-api/report/excellentdorsta/list?pageNum=1&pageSize=10",
                 headers: {
                   Authorization: window.sessionStorage.token
                 }
@@ -344,7 +296,7 @@ moment
       this.dialogVisible2 = true;
       this.axios({
         method: "GET",
-        url: " http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/" + id,
+        url: " http://122.112.253.28:8095/prod-api/report/excellentdorsta/" + id,
         headers: {
           Authorization: window.sessionStorage.token
         }
@@ -358,7 +310,7 @@ moment
       this.axios({
         method: "PUT",
         url:
-          "http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/update/" +
+          "http://122.112.253.28:8095/prod-api/report/excellentdorsta/update/" +
           this.idd,
         headers: {
           Authorization: window.sessionStorage.token
@@ -373,7 +325,7 @@ moment
         this.axios({
           method: "get",
           url:
-            "http://122.112.253.28:8095/prod-api/smartdor/sdhygiene/list?pageNum=1&pageSize=10",
+            "http://122.112.253.28:8095/prod-api/report/excellentdorsta/list?pageNum=1&pageSize=10",
           headers: {
             Authorization: window.sessionStorage.token
           }
@@ -398,6 +350,10 @@ moment
 }
 </style>
 <style  scoped>
+.block{
+    text-align: center;
+    margin:20px 0;
+}
 .demo-ruleForm {
   display: flex;
   flex-flow: column;

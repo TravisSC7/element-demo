@@ -34,7 +34,36 @@ export default new Router({
             path: '/wisdom/sdhygiene',
             component: () =>
                 import ('@/views/Sdhygiene')
+        }, {
+            path: '/wisdom/sddevice',
+            component: () =>
+                import ('@/views/Sddevice')
+        }, {
+            path: '/wisdom/sdleave',
+            component: () =>
+                import ('@/views/Sdleave')
+        }, {
+            path: '/wisdom/sdattence',
+            component: () =>
+                import ('@/views/Sdattence')
+        }, {
+            path: '/wisdom/hygienestatistics',
+            component: () =>
+                import ('@/views/Hygienestatistics')
+        }, {
+            path: '/wisdom/attencestatistics',
+            component: () =>
+                import ('@/views/Attencestatistics')
+        }, {
+            path: '/wisdom/excellentdorsta',
+            component: () =>
+                import ('@/views/Excellentdorsta')
+        }, {
+            path: '/wisdom/originalrecord',
+            component: () =>
+                import ('@/views/Originalrecord')
         }]
+
     }, {
         path: '/login',
         component: () =>

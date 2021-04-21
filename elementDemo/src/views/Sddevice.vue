@@ -1,17 +1,14 @@
 <template>
   <div id="Bclass">
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="班级名称">
-        <el-input v-model="formInline.user" size="small " placeholder="请输入班级名称"></el-input>
-      </el-form-item>
-      <el-form-item label="班主任">
-        <el-input v-model="formInline.bzr" size="small " placeholder="请输入班主任名称"></el-input>
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="formInline.region" size="small " placeholder="班级状态">
-          <el-option label="正常" value="1"></el-option>
-          <el-option label="停用" value="0"></el-option>
-        </el-select>
+      <el-form-item label="设备名称">
+        <el-input
+          type="text"
+          size="small"
+          v-model="formInline.age2"
+          placeholder="请输入设备名称"
+          autocomplete="off"
+        ></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small " @click="onSubmit" icon="el-icon-search">搜 索</el-button>
@@ -22,31 +19,48 @@
       <el-col>
         <el-button type="primary" icon="el-icon-plus" @click="dialogVisible = true" size="mini">新增</el-button>
         <el-button type="success" icon="el-icon-minus" disabled size="mini">修改</el-button>
-        <el-button type="danger" icon="el-icon-delete" disabled size="mini">删除</el-button>
       </el-col>
     </el-row>
     <!-- 添加 -->
-    <el-dialog title="添加班级信息" :visible.sync="dialogVisible" width="width: 41%">
+    <el-dialog title="添加设备信息" :visible.sync="dialogVisible">
       <el-form
         :model="numberValidateForm"
         ref="numberValidateForm"
         label-width="100px"
         class="demo-ruleForm"
       >
-        <el-form-item label="班级名称" prop="age">
-          <el-input
-            type="text"
-            placeholder="请输入班级名称"
-            v-model="numberValidateForm.age"
-            autocomplete="off"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="班主任">
-          <el-select v-model="numberValidateForm.age2" placeholder="请选择">
+        <el-form-item label="设备类型">
+          <el-select v-model="numberValidateForm.de" prop="de" placeholder="进门或出门">
             <el-option
-              v-for="(item, index) in dq"
+              v-for="(item, index) in dq2"
               :key="index"
-              :label="item.username"
+              :label="item.dictLabel"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备IP地址" prop="ds">
+          <el-input type="text" v-model="numberValidateForm.ds" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="识别失败提示语" prop="tl">
+          <el-input type="text" v-model="numberValidateForm.tl" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="识别成功提示语" prop="am">
+          <el-input type="text" v-model="numberValidateForm.am" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="设备号" prop="ne">
+          <el-input type="text" v-model="numberValidateForm.ne" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="设备名称" prop="sn">
+          <el-input type="text" v-model="numberValidateForm.sn" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="考勤规则" prop="ar">
+          <el-select v-model="numberValidateForm.ar">
+            <el-option
+              v-for="(item, index) in dq3"
+              :key="index"
+              :label="item.attenceRuleName"
               :value="item.id"
             ></el-option>
           </el-select>
@@ -61,14 +75,18 @@
       <el-col class="Oinn" :span="24">
         <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%">
           <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column label="序号" width="120">
+          <el-table-column label="序号" width="100">
             <template slot-scope="scope">{{ scope.row.id }}</template>
           </el-table-column>
-          <el-table-column prop="className" label="班级名称" width="120"></el-table-column>
-          <el-table-column prop="classTeacherName" label="班主任" width="120"></el-table-column>
+          <el-table-column label="设备IP地址" width="100">
+            <template slot-scope="scope">{{scope.row.deviceIpAddress}}</template>  
+          </el-table-column>
+          <el-table-column label="设备出入类型" prop="deviceAccessType"></el-table-column>
+          <el-table-column label="设备号" prop="deviceNo"></el-table-column>
+          <el-table-column label="设备名称" prop="deviceName"></el-table-column>
+          <el-table-column label="考勤规则" prop="attenceRuleName"></el-table-column>
           <el-table-column prop="createTime" label="创建时间"></el-table-column>
-          <el-table-column prop="modifyTime" label="修改时间"></el-table-column>
-          <el-table-column label="状态" width="120">
+          <el-table-column label="状态" width="90">
             <template>
               <el-switch v-model="value1"></el-switch>
             </template>
@@ -82,35 +100,48 @@
                 @click="Xiu(scope.row.id)"
                 circle
               ></el-button>
-              <el-button
-                type="danger"
-                size="mini"
-                icon="el-icon-delete"
-                @click="del(scope.$index,scope.row.id)"
-                circle
-              ></el-button>
+         
             </template>
           </el-table-column>
         </el-table>
       </el-col>
     </el-row>
     <!-- 修改 -->
-    <el-dialog title="修改班级信息" :visible.sync="dialogVisible2" width="width: 41%">
+    <el-dialog title="修改设备信息" :visible.sync="dialogVisible2" width="width: 41%">
       <el-form
         :model="numberValidateForm"
         ref="numberValidateForm"
         label-width="100px"
         class="demo-ruleForm"
       >
-        <el-form-item label="班级名称" prop="age" disabled>
-          <el-input type="text" :placeholder="Cxun2.className" disabled autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="班主任">
-          <el-select v-model="Cxun2.classTeacherId">
+        <el-form-item label="设备类型">
+          <el-select v-model="Cxun2.deviceAccessType" placeholder="进门或出门">
             <el-option
-              v-for="(item, index) in dq"
+              v-for="(item, index) in dq2"
               :key="index"
-              :label="item.username"
+              :label="item.dictLabel"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备IP地址" prop="age">
+          <el-input type="text" v-model="Cxun2.deviceIpAddress" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="识别成功提示语" prop="age">
+          <el-input type="text" v-model="Cxun2.tipsPairFail" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="设备号" prop="age">
+          <el-input type="text" v-model="Cxun2.sn" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="设备名称" prop="age">
+          <el-input type="text" v-model="Cxun2.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="考勤规则">
+          <el-select v-model="Cxun2.attenceRuleName ">
+            <el-option
+              v-for="(item, index) in dq3"
+              :key="index"
+              :label="item.attenceRuleName"
               :value="item.id"
             ></el-option>
           </el-select>
@@ -121,8 +152,8 @@
         <el-button type="primary" @click="Xiugai()">确 定</el-button>
       </span>
     </el-dialog>
-    <div class="block">
-      <span class="demonstration">完整功能</span>
+     <div class="block">
+   
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -138,36 +169,51 @@
 <script>
 export default {
   name: "Bclass",
-   
   data() {
-    return { 
-      pageIndex:0,
+    return {
+       pageIndex:0,
       total:0,
       totalPage:0,
-      currentPage4: 4,
+      currentPage4: 1,
       dialogVisible: false,
       dialogVisible2: false,
       numberValidateForm: {
-        age: "",
-        age2: ""
+        am: "",
+        ar: "",
+        de: "",
+        ds: "",
+        ne: "",
+        sn: "",
+        tl: ""
       },
-      dq: [],
+      dq2: [],
+      dq3: [],
+
       formInline: {
-        user: "",
-        region: "",
-        bzr: ""
+        age2: ""
       },
       value1: true,
       tableData: [],
       Cxun2: [],
-      idd: ""
+      idd: "",
+      Jchu: []
     };
   },
   created() {
     this.axios({
       method: "get",
       url:
-        "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10",
+        "http://122.112.253.28:8095/prod-api/sys/dict/detail/dictType/device_access_type",
+      headers: {
+        Authorization: window.sessionStorage.token
+      }
+    }).then(relt => {
+      this.Jchu = relt.data.data;
+    });
+    this.axios({
+      method: "get",
+      url:
+        "http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=1&pageSize=10",
       headers: {
         Authorization: window.sessionStorage.token
       }
@@ -178,18 +224,29 @@ export default {
     });
     this.axios({
       method: "get",
-      url: "http://122.112.253.28:8095/prod-api/sys/user/getClassTeacherList",
+      url:
+        "http://122.112.253.28:8095/prod-api/sys/dict/detail/dictType/device_access_type",
       headers: {
         Authorization: window.sessionStorage.token
       }
     }).then(relt => {
-      this.dq = relt.data.data;
+      this.dq2 = relt.data.data;
+    });
+    this.axios({
+      method: "get",
+      url:
+        "http://122.112.253.28:8095/prod-api/smartdor/sddevice/getAttenceRuleList",
+      headers: {
+        Authorization: window.sessionStorage.token
+      }
+    }).then(relt => {
+      this.dq3 = relt.data.data;
     });
 
     // this.axios({
     //   method: "get",
     //   url:
-    //     "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10&className=&status=&classTeacherName=",
+    //     "http://122.112.253.28:8095/prod-api/basedata/bdormitory/list?pageNum=1&pageSize=10&className=&status=&classTeacherName=",
     //   headers: {
     //     Authorization: window.sessionStorage.token
     //   }
@@ -209,12 +266,14 @@ export default {
         this.axios({
           method: "get",
           url:
-            `http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=${val}`,
+            `http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=1&pageSize=${val}`,
           headers: {
             Authorization: window.sessionStorage.token
           }
         }).then(relt => {
           this.tableData = relt.data.data.list;
+            this.total = relt.data.data.total;
+      this.totalPage = relt.data.data.totalPage;
         });
       },
       handleCurrentChange(val) {
@@ -223,111 +282,71 @@ export default {
            this.axios({
           method: "get",
           url:
-            `http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=${val}&pageSize=10`,
+            `http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=${val}&pageSize=10`,
           headers: {
             Authorization: window.sessionStorage.token
           }
         }).then(relt => {
           this.tableData = relt.data.data.list;
+            this.total = relt.data.data.total;
+      this.totalPage = relt.data.data.totalPage;
         });
       },
     onSubmit() {
       this.axios({
         method: "get",
         url:
-          "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10&className=" +
-          this.formInline.user +
-          "&status=" +
-          this.formInline.region +
-          "&classTeacherName=" +
-          this.formInline.bzr +
-          "",
+          "http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=1&pageSize=10&deviceName=" +
+          this.formInline.age2,
         headers: {
           Authorization: window.sessionStorage.token
         }
       }).then(relt => {
         this.tableData = relt.data.data.list;
+          this.total = relt.data.data.total;
+      this.totalPage = relt.data.data.totalPage;
       });
     },
     onCz() {
-      (this.formInline.user = ""),
+      (this.formInline.age = ""),
         (this.formInline.region = ""),
-        (this.formInline.bzr = ""),
+        (this.formInline.age3 = ""),
+        (this.formInline.age2 = ""),
         this.axios({
           method: "get",
           url:
-            "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10",
+            "http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=1&pageSize=10",
           headers: {
             Authorization: window.sessionStorage.token
           }
         }).then(relt => {
           this.tableData = relt.data.data.list;
+            this.total = relt.data.data.total;
+      this.totalPage = relt.data.data.totalPage;
         });
-    },
-    del(index, id) {
-      this.axios({
-        method: "DELETE",
-        url:
-          "http://122.112.253.28:8095/prod-api/basedata/bclass/deleteByIds/" +
-          id,
-        headers: {
-          Authorization: window.sessionStorage.token
-        }
-      }).then(relt => {
-        this.$confirm("是否确认删除班级编号为" + id + "的数据项?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            if (relt.data.code == 200) {
-              this.$message({
-                type: "success",
-                message: "删除成功!"
-              });
-
-              this.axios({
-                method: "get",
-                url:
-                  "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10",
-                headers: {
-                  Authorization: window.sessionStorage.token
-                }
-              }).then(relt => {
-                this.tableData = relt.data.data.list;
-              });
-            } else {
-              this.$message({
-                type: "info",
-                message: "删除失败!"
-              });
-            }
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除"
-            });
-          });
-        // this.tableData = relt.data.data.list;
-      });
     },
     Cha() {
       this.axios({
-        method: "post",
-        url: "http://122.112.253.28:8095/prod-api/basedata/bclass/create",
+        method: "POST",
+        url: "http://122.112.253.28:8095/prod-api/smartdor/sddevice/create",
         data: {
-          className: this.numberValidateForm.age,
-          classTeacherId: this.numberValidateForm.age2
+          appWelcomeMsg: this.numberValidateForm.am,
+          attenceRuleId: this.numberValidateForm.ar,
+          deviceAccessType: "1",
+          deviceIpAddress: this.numberValidateForm.ds,
+          name: this.numberValidateForm.ne,
+          sn: this.numberValidateForm.sn,
+          tipsPairFail: this.numberValidateForm.tl
         },
         headers: {
           Authorization: window.sessionStorage.token
         }
       }).then(relt => {
+        console.log(relt);
         if (relt.data.code == 500) {
           this.$notify.error({
             title: "错误",
-            message: "用户已存在"
+            message: "该信息存在"
           });
         } else {
           this.dialogVisible = false;
@@ -335,17 +354,23 @@ export default {
             message: "新增成功!",
             type: "success"
           });
-          this.numberValidateForm.age = "";
-          this.numberValidateForm.age2 = "";
+          this.numberValidateForm.am= "";
+          this.numberValidateForm.ar = "";
+          this.numberValidateForm.tl= "";
+          this.numberValidateForm.sn= "";
+          this.numberValidateForm.ne = "";
+          this.numberValidateForm.ds= "";
           this.axios({
             method: "get",
             url:
-              "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10",
+              "http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=1&pageSize=10",
             headers: {
               Authorization: window.sessionStorage.token
             }
           }).then(relt => {
             this.tableData = relt.data.data.list;
+              this.total = relt.data.data.total;
+      this.totalPage = relt.data.data.totalPage;
           });
         }
       });
@@ -354,29 +379,26 @@ export default {
       this.dialogVisible2 = true;
       this.axios({
         method: "GET",
-        url: " http://122.112.253.28:8095/prod-api/basedata/bclass/" + id,
+        url: "http://122.112.253.28:8095/prod-api/smartdor/sddevice/info/" + id,
         headers: {
           Authorization: window.sessionStorage.token
         }
       }).then(relt => {
         this.Cxun2 = relt.data.data;
-
         this.idd = relt.data.data.id;
-        console.log(this.idd);
       });
     },
     Xiugai() {
       this.axios({
         method: "PUT",
         url:
-          "http://122.112.253.28:8095/prod-api/basedata/bclass/update/" +
+          "http://122.112.253.28:8095/prod-api/smartdor/sddevice/update/" +
           this.idd,
         headers: {
           Authorization: window.sessionStorage.token
         },
         data: this.Cxun2
       }).then(() => {
-        
         this.$message({
           message: "修改成功!",
           type: "success"
@@ -385,12 +407,14 @@ export default {
         this.axios({
           method: "get",
           url:
-            "http://122.112.253.28:8095/prod-api/basedata/bclass/list?pageNum=1&pageSize=10",
+            "http://122.112.253.28:8095/prod-api/smartdor/sddevice/list?pageNum=1&pageSize=10",
           headers: {
             Authorization: window.sessionStorage.token
           }
         }).then(relt => {
           this.tableData = relt.data.data.list;
+            this.total = relt.data.data.total;
+      this.totalPage = relt.data.data.totalPage;
         });
       });
     }
@@ -398,6 +422,12 @@ export default {
 };
 </script>
 <style >
+.block{
+  text-align: center;
+}
+.Oinn .el-table .cell {
+  white-space: nowrap;
+}
 .Oinn .el-table th.is-leaf {
   background: #f8f8f9;
 }
@@ -407,8 +437,13 @@ export default {
 }
 </style>
 <style  scoped>
+.demo-form-inline .el-select {
+  margin-right: 50px;
+}
+
 .demo-ruleForm {
   display: flex;
+  flex-flow: column;
 }
 .demo-ruleForm .el-form-item {
   flex: 1;
